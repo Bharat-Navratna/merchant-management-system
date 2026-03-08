@@ -1,5 +1,6 @@
 const { getClient } = require("../db");
 const AppError = require("../utils/appError");
+const { enqueueWebhookDeliveries } = require("./webhookDelivery.service");
 
 const ALLOWED_TRANSITIONS = {
   PENDING_KYB: ["ACTIVE", "SUSPENDED"],
@@ -14,7 +15,7 @@ const updateMerchantStatus = async (id, data, currentUser) => {
     await client.query("BEGIN");
 
     const merchantResult = await client.query(
-      `SELECT id, status
+      `SELECT id, name, status
        FROM merchants
        WHERE id = $1
        FOR UPDATE`,
@@ -84,6 +85,21 @@ const updateMerchantStatus = async (id, data, currentUser) => {
        VALUES ($1, $2, $3, $4, $5)`,
       [id, oldStatus, newStatus, currentUser.id, reason || null]
     );
+
+    if (newStatus === "ACTIVE" || newStatus === "SUSPENDED") {
+      const eventType =
+        newStatus === "ACTIVE" ? "MERCHANT_APPROVED" : "MERCHANT_SUSPENDED";
+
+      await enqueueWebhookDeliveries(eventType, {
+        merchantId: updatedMerchant.id,
+        name: updatedMerchant.name,
+        status: updatedMerchant.status,
+        eventType,
+        changedBy: currentUser.id,
+        reason: reason || null,
+        occurredAt: new Date().toISOString()
+      });
+    }
 
     await client.query("COMMIT");
 

@@ -3,6 +3,7 @@ const authRoutes = require("./auth.routes");
 const merchantRoutes = require("./merchant.routes");
 const documentRoutes = require("./document.routes");
 const statusRoutes = require("./status.routes");
+const webhookRoutes = require("./webhook.routes");
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.use("/auth", authRoutes);
 router.use("/merchants", merchantRoutes);
 router.use("/merchants", documentRoutes);
 router.use("/merchants", statusRoutes);
+router.use("/webhooks", webhookRoutes);
 
 module.exports = router;

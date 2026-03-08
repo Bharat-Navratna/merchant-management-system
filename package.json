@@ -9,7 +9,8 @@
     "test": "cross-env NODE_ENV=test jest --runInBand",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
     "migrate": "node scripts/runMigrations.js",
-    "seed": "node scripts/seedAdmin.js"
+    "seed": "node scripts/seedAdmin.js",
+    "worker:webhooks": "node src/workers/webhook.worker.js"
   },
   "keywords": [],
   "author": "Bharat Navratna",
