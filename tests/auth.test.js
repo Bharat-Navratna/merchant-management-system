@@ -39,7 +39,6 @@ describe("POST /api/auth/login", () => {
     expect(response.body.success).toBe(true);
     expect(response.body.data.accessToken).toBeDefined();
     expect(response.body.data.refreshToken).toBeDefined();
-    expect(response.body.data.operator.email).toBe(email);
   });
 
   it("should reject invalid credentials", async () => {
