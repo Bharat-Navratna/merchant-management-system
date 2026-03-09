@@ -16,9 +16,9 @@ A backend service for managing merchants on a payment platform. Merchants must c
 
 ## Tech Stack
 
-- Node.js (v20+)
-- Express.js (4.x)
-- PostgreSQL (v15+)
+- Node.js (v24.13.1)
+- Express.js (4.22.1)
+- PostgreSQL (16.13)
 - JWT for authentication
 - Zod for input validation
 - bcrypt for password hashing
