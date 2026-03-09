@@ -4,15 +4,15 @@ A backend service for managing merchants on a payment platform. Merchants must c
 
 ## Key Features
 
-- **Operator Authentication** — JWT-based login with access and refresh tokens, automatic lockout after failed attempts
-- **Merchant CRUD** — Create, read, update, and delete merchant records with role-based access control
-- **KYB Document Management** — Upload and verify required business documents per merchant
-- **Status Transition Engine** — Rule-enforced status changes with document verification checks
-- **Immutable Status History** — Append-only audit log of every merchant status change
-- **Webhook Subscriptions** — Admin-managed webhook registration for external integrations
-- **Background Webhook Delivery** — Asynchronous delivery with signed payloads and retry on failure
-- **Input Validation** — All incoming data validated with Zod schemas
-- **Secure Password Hashing** — Passwords hashed using bcrypt with salt rounds
+- **Operator Authentication** : JWT-based login with access and refresh tokens, automatic lockout after failed attempts
+- **Merchant CRUD** : Create, read, update, and delete merchant records with role-based access control
+- **KYB Document Management** : Upload and verify required business documents per merchant
+- **Status Transition Engine** : Rule-enforced status changes with document verification checks
+- **Immutable Status History** : Append-only audit log of every merchant status change
+- **Webhook Subscriptions** : Admin-managed webhook registration for external integrations
+- **Background Webhook Delivery** : Asynchronous delivery with signed payloads and retry on failure
+- **Input Validation** : All incoming data validated with Zod schemas
+- **Secure Password Hashing** : Passwords hashed using bcrypt with salt rounds
 
 ## Tech Stack
 
@@ -177,36 +177,36 @@ Tests use a real PostgreSQL database. Ensure your `.env` is configured before ru
 
 ### Health
 
-- `GET /api/health` — Server status check
+- `GET /api/health` : Server status check
 
 ### Authentication
 
-- `POST /api/auth/login` — Login with email and password
-- `POST /api/auth/refresh` — Refresh access token
+- `POST /api/auth/login` : Login with email and password
+- `POST /api/auth/refresh` : Refresh access token
 
 ### Merchants
 
-- `POST /api/merchants` — Create a new merchant
-- `GET /api/merchants` — List merchants (supports filters: status, city, category, search)
-- `GET /api/merchants/:id` — Get merchant by ID
-- `PATCH /api/merchants/:id` — Update merchant details
-- `DELETE /api/merchants/:id` — Delete merchant (admin only)
+- `POST /api/merchants` : Create a new merchant
+- `GET /api/merchants` : List merchants (supports filters: status, city, category, search)
+- `GET /api/merchants/:id` : Get merchant by ID
+- `PATCH /api/merchants/:id` : Update merchant details
+- `DELETE /api/merchants/:id` : Delete merchant (admin only)
 
 ### KYB Documents
 
-- `POST /api/merchants/:merchantId/documents` — Upload a document
-- `GET /api/merchants/:merchantId/documents` — List documents for a merchant
-- `PATCH /api/merchants/:merchantId/documents/:documentId/verify` — Verify a document
+- `POST /api/merchants/:merchantId/documents` : Upload a document
+- `GET /api/merchants/:merchantId/documents` : List documents for a merchant
+- `PATCH /api/merchants/:merchantId/documents/:documentId/verify` : Verify a document
 
 ### Status Management
 
-- `PATCH /api/merchants/:id/status` — Change merchant status
+- `PATCH /api/merchants/:id/status` : Change merchant status
 
 ### Webhooks
 
-- `POST /api/webhooks` — Register a webhook subscription (admin only)
-- `GET /api/webhooks` — List webhook subscriptions (admin only)
-- `DELETE /api/webhooks/:id` — Delete a webhook subscription (admin only)
+- `POST /api/webhooks` : Register a webhook subscription (admin only)
+- `GET /api/webhooks` : List webhook subscriptions (admin only)
+- `DELETE /api/webhooks/:id` : Delete a webhook subscription (admin only)
 
 ## Webhook System
 
@@ -232,8 +232,8 @@ Failed deliveries are retried up to 3 times with a configurable interval between
 
 ### Webhook Event Types
 
-- `MERCHANT_APPROVED` — Merchant status changed to ACTIVE
-- `MERCHANT_SUSPENDED` — Merchant status changed to SUSPENDED
+- `MERCHANT_APPROVED` : Merchant status changed to ACTIVE
+- `MERCHANT_SUSPENDED` : Merchant status changed to SUSPENDED
 
 ## Security Considerations
 
@@ -247,11 +247,11 @@ Failed deliveries are retried up to 3 times with a configurable interval between
 
 ## Design Decisions
 
-- **Separation of concerns** — Controllers handle HTTP, services contain business logic, validators enforce input constraints
-- **Database transactions** — Status transitions use explicit BEGIN/COMMIT/ROLLBACK to ensure atomicity
-- **Background worker** — Webhook delivery runs in a separate process to avoid blocking API requests
-- **Immutable audit log** — Status history table is append-only with no UPDATE or DELETE operations
-- **Token rotation** — Refresh tokens are revoked and replaced on each use to limit replay attacks
+- **Separation of concerns** : Controllers handle HTTP, services contain business logic, validators enforce input constraints
+- **Database transactions** : Status transitions use explicit BEGIN/COMMIT/ROLLBACK to ensure atomicity
+- **Background worker** : Webhook delivery runs in a separate process to avoid blocking API requests
+- **Immutable audit log** : Status history table is append-only with no UPDATE or DELETE operations
+- **Token rotation** : Refresh tokens are revoked and replaced on each use to limit replay attacks
 
 ## Future Improvements
 
