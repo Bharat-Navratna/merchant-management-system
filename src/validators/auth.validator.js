@@ -1,5 +1,14 @@
 const { z } = require("zod");
 
+const registerSchema = z.object({
+  body: z.object({
+    email: z.email("Valid email is required"),
+    password: z.string().min(8, "Password must be at least 8 characters long")
+  }),
+  params: z.object({}),
+  query: z.object({})
+});
+
 const loginSchema = z.object({
   body: z.object({
     email: z.email("Valid email is required"),
@@ -18,6 +27,7 @@ const refreshSchema = z.object({
 });
 
 module.exports = {
+  registerSchema,
   loginSchema,
   refreshSchema
 };

@@ -33,18 +33,15 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await query(
-    `DELETE FROM refresh_tokens WHERE operator_id = $1`,
-    [operatorId]
-  );
+  await query(`DELETE FROM refresh_tokens WHERE operator_id = $1`, [operatorId]);
   await query(`DELETE FROM merchants WHERE created_by = $1`, [operatorId]);
   await query(`DELETE FROM operators WHERE id = $1`, [operatorId]);
   await pool.end();
 });
 
 describe("POST /api/merchants", () => {
-  it("should create a merchant successfully", async () => {
-    const response = await request(app)
+  it("should create a merchant and return 201", async () => {
+    const res = await request(app)
       .post("/api/merchants")
       .set("Authorization", `Bearer ${accessToken}`)
       .send({
@@ -54,54 +51,89 @@ describe("POST /api/merchants", () => {
         contactEmail: "test@merchant.com"
       });
 
-    expect(response.status).toBe(201);
-    expect(response.body.success).toBe(true);
-    merchantId = response.body.data.id;
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.name).toBe("Test Merchant");
+    expect(res.body.data.status).toBe("PENDING_KYB");
+    merchantId = res.body.data.id;
+  });
+});
+
+describe("GET /api/merchants/:id", () => {
+  it("should return 200 with merchant data when JWT is valid", async () => {
+    const res = await request(app)
+      .get(`/api/merchants/${merchantId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(merchantId);
+  });
+
+  it("should return 401 when no JWT is provided", async () => {
+    const res = await request(app).get(`/api/merchants/${merchantId}`);
+
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
   });
 });
 
 describe("GET /api/merchants", () => {
   it("should list merchants successfully", async () => {
-    const response = await request(app)
+    const res = await request(app)
       .get("/api/merchants")
       .set("Authorization", `Bearer ${accessToken}`);
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
-    expect(Array.isArray(response.body.data)).toBe(true);
-  });
-});
-
-describe("GET /api/merchants/:id", () => {
-  it("should get a merchant by id successfully", async () => {
-    const response = await request(app)
-      .get(`/api/merchants/${merchantId}`)
-      .set("Authorization", `Bearer ${accessToken}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
 
 describe("PATCH /api/merchants/:id", () => {
-  it("should update a merchant successfully", async () => {
-    const response = await request(app)
+  it("should update a merchant field and return 200", async () => {
+    const res = await request(app)
       .patch(`/api/merchants/${merchantId}`)
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ city: "Delhi" });
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.city).toBe("Delhi");
+  });
+});
+
+describe("PATCH /api/merchants/:id/status", () => {
+  it("should return 400 when attempting an invalid status transition", async () => {
+    // PENDING_KYB → ACTIVE without documents should fail
+    const res = await request(app)
+      .patch(`/api/merchants/${merchantId}/status`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ newStatus: "ACTIVE", reason: "Skipping KYB" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it("should return 200 when transitioning to a valid status", async () => {
+    const res = await request(app)
+      .patch(`/api/merchants/${merchantId}/status`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ newStatus: "SUSPENDED", reason: "Test suspension" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe("SUSPENDED");
   });
 });
 
 describe("DELETE /api/merchants/:id", () => {
   it("should delete a merchant successfully as admin", async () => {
-    const response = await request(app)
+    const res = await request(app)
       .delete(`/api/merchants/${merchantId}`)
       .set("Authorization", `Bearer ${accessToken}`);
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 });

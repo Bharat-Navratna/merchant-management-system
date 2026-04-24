@@ -13,6 +13,39 @@ const hashToken = (token) => {
   return crypto.createHash("sha256").update(token).digest("hex");
 };
 
+const register = async ({ email, password }) => {
+  const { rows: existing } = await query(
+    `SELECT id FROM operators WHERE email = $1`,
+    [email]
+  );
+
+  if (existing.length > 0) {
+    throw new AppError("Email already in use", 409);
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const { rows } = await query(
+    `INSERT INTO operators (email, password_hash, role)
+     VALUES ($1, $2, 'OPERATOR')
+     RETURNING id, email, role`,
+    [email, passwordHash]
+  );
+
+  const operator = rows[0];
+  const accessToken = generateAccessToken(operator);
+  const refreshToken = generateRefreshToken(operator);
+  const tokenHash = hashToken(refreshToken);
+
+  await query(
+    `INSERT INTO refresh_tokens (operator_id, token_hash, expires_at)
+     VALUES ($1, $2, NOW() + INTERVAL '7 days')`,
+    [operator.id, tokenHash]
+  );
+
+  return { operator, accessToken, refreshToken };
+};
+
 const login = async ({ email, password }) => {
   const { rows } = await query(
     `SELECT id, email, password_hash, role, failed_login_attempts, locked_until
@@ -83,6 +116,15 @@ const login = async ({ email, password }) => {
   };
 };
 
+const logout = async ({ refreshToken }) => {
+  const tokenHash = hashToken(refreshToken);
+  await query(
+    `UPDATE refresh_tokens SET revoked_at = NOW()
+     WHERE token_hash = $1 AND revoked_at IS NULL`,
+    [tokenHash]
+  );
+};
+
 const refresh = async ({ refreshToken }) => {
   let payload;
   try {
@@ -147,6 +189,8 @@ const refresh = async ({ refreshToken }) => {
 };
 
 module.exports = {
+  register,
   login,
+  logout,
   refresh
 };

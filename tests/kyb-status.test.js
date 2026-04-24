@@ -61,7 +61,7 @@ afterAll(async () => {
 
 describe("KYB Status Transition Flow", () => {
   it("should create a merchant for KYB testing", async () => {
-    const response = await request(app)
+    const res = await request(app)
       .post("/api/merchants")
       .set("Authorization", `Bearer ${accessToken}`)
       .send({
@@ -71,81 +71,68 @@ describe("KYB Status Transition Flow", () => {
         contactEmail: "kyb@merchant.com"
       });
 
-    expect(response.status).toBe(201);
-    expect(response.body.success).toBe(true);
-    merchantId = response.body.data.id;
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    merchantId = res.body.data.id;
   });
 
   it("should upload BUSINESS_REGISTRATION document", async () => {
-    const response = await request(app)
+    const res = await request(app)
       .post(`/api/merchants/${merchantId}/documents`)
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        type: "BUSINESS_REGISTRATION",
-        fileUrl: "https://example.com/business.pdf"
-      });
+      .send({ type: "BUSINESS_REGISTRATION", fileUrl: "https://example.com/business.pdf" });
 
-    expect(response.status).toBe(201);
-    expect(response.body.success).toBe(true);
-    businessRegDocId = response.body.data.id;
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    businessRegDocId = res.body.data.id;
   });
 
   it("should upload OWNER_IDENTITY document", async () => {
-    const response = await request(app)
+    const res = await request(app)
       .post(`/api/merchants/${merchantId}/documents`)
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        type: "OWNER_IDENTITY",
-        fileUrl: "https://example.com/owner.pdf"
-      });
+      .send({ type: "OWNER_IDENTITY", fileUrl: "https://example.com/owner.pdf" });
 
-    expect(response.status).toBe(201);
-    expect(response.body.success).toBe(true);
-    ownerIdentityDocId = response.body.data.id;
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    ownerIdentityDocId = res.body.data.id;
   });
 
-  it("should fail to activate merchant before all 3 documents are verified", async () => {
-    const response = await request(app)
+  it("should return 400 when activating merchant before all 3 documents are verified", async () => {
+    const res = await request(app)
       .patch(`/api/merchants/${merchantId}/status`)
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        newStatus: "ACTIVE",
-        reason: "KYB approval attempt"
-      });
+      .send({ newStatus: "ACTIVE", reason: "KYB approval attempt" });
 
-    expect(response.status).toBe(400);
-    expect(response.body.success).toBe(false);
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
   });
 
   it("should verify BUSINESS_REGISTRATION document", async () => {
-    const response = await request(app)
+    const res = await request(app)
       .patch(`/api/merchants/${merchantId}/documents/${businessRegDocId}/verify`)
       .set("Authorization", `Bearer ${accessToken}`);
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 
   it("should verify OWNER_IDENTITY document", async () => {
-    const response = await request(app)
+    const res = await request(app)
       .patch(`/api/merchants/${merchantId}/documents/${ownerIdentityDocId}/verify`)
       .set("Authorization", `Bearer ${accessToken}`);
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 
   it("should upload and verify BANK_ACCOUNT_PROOF document", async () => {
     const uploadRes = await request(app)
       .post(`/api/merchants/${merchantId}/documents`)
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        type: "BANK_ACCOUNT_PROOF",
-        fileUrl: "https://example.com/bank.pdf"
-      });
+      .send({ type: "BANK_ACCOUNT_PROOF", fileUrl: "https://example.com/bank.pdf" });
 
     expect(uploadRes.status).toBe(201);
-    expect(uploadRes.body.success).toBe(true);
     bankProofDocId = uploadRes.body.data.id;
 
     const verifyRes = await request(app)
@@ -156,44 +143,45 @@ describe("KYB Status Transition Flow", () => {
     expect(verifyRes.body.success).toBe(true);
   });
 
-  it("should activate merchant after all required documents are verified", async () => {
-    const response = await request(app)
+  it("should submit KYB — activate merchant after all documents are verified (200)", async () => {
+    const res = await request(app)
       .patch(`/api/merchants/${merchantId}/status`)
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        newStatus: "ACTIVE",
-        reason: "KYB approved"
-      });
+      .send({ newStatus: "ACTIVE", reason: "KYB approved" });
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
-    expect(response.body.data.status).toBe("ACTIVE");
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe("ACTIVE");
+  });
+
+  it("should return 409 when attempting to activate an already-verified merchant", async () => {
+    const res = await request(app)
+      .patch(`/api/merchants/${merchantId}/status`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ newStatus: "ACTIVE", reason: "Re-activate already active merchant" });
+
+    expect(res.status).toBe(409);
+    expect(res.body.success).toBe(false);
   });
 
   it("should suspend an active merchant", async () => {
-    const response = await request(app)
+    const res = await request(app)
       .patch(`/api/merchants/${merchantId}/status`)
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        newStatus: "SUSPENDED",
-        reason: "Compliance review"
-      });
+      .send({ newStatus: "SUSPENDED", reason: "Compliance review" });
 
-    expect(response.status).toBe(200);
-    expect(response.body.success).toBe(true);
-    expect(response.body.data.status).toBe("SUSPENDED");
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe("SUSPENDED");
   });
 
-  it("should reject invalid transition from SUSPENDED to PENDING_KYB", async () => {
-    const response = await request(app)
+  it("should return 400 when attempting invalid transition from SUSPENDED to PENDING_KYB", async () => {
+    const res = await request(app)
       .patch(`/api/merchants/${merchantId}/status`)
       .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        newStatus: "PENDING_KYB",
-        reason: "Reset"
-      });
+      .send({ newStatus: "PENDING_KYB", reason: "Reset" });
 
-    expect(response.status).toBe(400);
-    expect(response.body.success).toBe(false);
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
   });
 });

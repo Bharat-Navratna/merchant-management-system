@@ -1,8 +1,8 @@
-# Merchant Management System
+# Fintech Merchant API
 
-A backend service for managing merchants on a payment platform. Merchants must complete KYB (Know Your Business) verification before they can accept payments. The system enforces strict status transition rules, tracks document verification, maintains an immutable audit history, and delivers webhook notifications to external subscribers.
+Production-grade REST API for merchant onboarding, KYB verification, and webhook event delivery.
 
-## Key Features
+---
 
 - **Operator Authentication** : JWT-based login with access and refresh tokens, automatic lockout after failed attempts
 - **Merchant CRUD** : Create, read, update, and delete merchant records with role-based access control
@@ -14,7 +14,10 @@ A backend service for managing merchants on a payment platform. Merchants must c
 - **Input Validation** : All incoming data validated with Zod schemas
 - **Secure Password Hashing** : Passwords hashed using bcrypt with salt rounds
 
-## Tech Stack
+## Why this project
+
+Fintech platforms that accept payments from third-party merchants face a regulatory and operational challenge: they must verify the legitimacy of each merchant before allowing them to transact. This process is called **KYB (Know Your Business)**, the business-to-business equivalent of the consumer KYC process.
+
 
 - Node.js (v24.13.1)
 - Express.js (4.22.1)
@@ -24,156 +27,210 @@ A backend service for managing merchants on a payment platform. Merchants must c
 - bcrypt for password hashing
 - Jest + Supertest for testing
 
-## Merchant Lifecycle
+This API models a realistic merchant onboarding lifecycle:
 
-Merchants progress through three statuses:
+1. An operator creates a merchant record
+2. The merchant submits three required documents (business registration, owner identity, bank account proof)
+3. Operators review and verify each document
+4. Once all three are verified, the merchant can be **activated**
+5. Active merchants can be **suspended** and re-activated, with every transition logged in an immutable audit trail
 
-```
-PENDING_KYB  →  ACTIVE
-PENDING_KYB  →  SUSPENDED
-ACTIVE       →  SUSPENDED
-SUSPENDED    →  ACTIVE
-```
+**Why webhook delivery is architecturally interesting:** Downstream systems (payment processors, compliance tools, notification services) need to react to merchant status changes. Rather than polling, clients register a URL and receive signed HTTP callbacks. Because delivery is unreliable (target URLs go down, network blips happen), the system enqueues each delivery to PostgreSQL and a background worker processes them with configurable retry logic, forming a lightweight, dependency-free message queue pattern.
 
-**Activation Rule:** A merchant cannot transition to `ACTIVE` unless all three required KYB documents are uploaded and verified:
+---
 
-1. Business Registration
-2. Owner Identity Document
-3. Bank Account Proof
+## Tech stack
 
-Any other status transition (e.g., `ACTIVE → PENDING_KYB`) is rejected with a clear error message.
+| Technology | Purpose | Why chosen |
+|---|---|---|
+| Node.js 20 + Express | HTTP server and routing | Widely adopted, minimal overhead, large ecosystem |
+| PostgreSQL 16 | Relational database | ACID transactions for state machine correctness; rich query support |
+| `pg` (node-postgres) | DB driver + connection pool | Lightweight, no ORM overhead, full SQL control |
+| JWT (access + refresh) | Authentication | Stateless auth with token rotation; refresh tokens stored and revocable |
+| bcrypt | Password hashing | Industry-standard adaptive hashing; protects against brute-force |
+| Zod | Input validation | Schema-first validation with TypeScript-friendly inference |
+| swagger-jsdoc + swagger-ui-express | OpenAPI docs | Docs live next to the code; always in sync with routes |
+| express-rate-limit | Rate limiting | Per-route throttling without a Redis dependency |
+| Jest + supertest | Testing | First-class Node test runner; supertest drives real HTTP requests |
+| Docker + Docker Compose | Containerisation | Single-command local setup; mirrors production topology |
 
-## Database Schema
+---
 
-| Table | Purpose |
-|---|---|
-| `operators` | System users (admin and operator roles) |
-| `refresh_tokens` | Hashed refresh tokens with expiry and revocation |
-| `merchants` | Merchant records with status and pricing tier |
-| `merchant_documents` | KYB documents linked to merchants |
-| `merchant_status_history` | Immutable log of all status transitions |
-| `webhook_subscriptions` | Registered webhook endpoints |
-| `webhook_deliveries` | Delivery attempts with status and retry tracking |
-
-## Project Structure
+## Architecture
 
 ```
-src/
-  config/       # Environment and app configuration
-  controllers/  # Request handlers
-  db/           # Database connection and pool
-  middleware/   # Auth, error handling, validation
-  routes/       # Express route definitions
-  services/     # Business logic
-  validators/   # Zod validation schemas
-  utils/        # Shared utilities (JWT, signatures)
-  workers/      # Background job processors
-migrations/     # SQL migration files
-scripts/        # Migration runner and seed utilities
-tests/          # Jest + Supertest tests
+┌─────────────────────────────────────────────────────────────────┐
+│  HTTP Request                                                   │
+│       │                                                         │
+│       ▼                                                         │
+│  Rate Limiter (authLimiter / apiLimiter / webhookLimiter)       │
+│       │                                                         │
+│       ▼                                                         │
+│  Express Router  (/api/auth, /api/merchants, /api/webhooks)     │
+│       │                                                         │
+│       ▼                                                         │
+│  Auth Middleware  (verifies JWT, sets req.user)                 │
+│       │                                                         │
+│       ▼                                                         │
+│  Validation Middleware  (Zod schemas)                           │
+│       │                                                         │
+│       ▼                                                         │
+│  Controller  (parses req, calls service, sends response)        │
+│       │                                                         │
+│       ▼                                                         │
+│  Service  (business logic, state machine, transactions)         │
+│       │                                                         │
+│       ▼                                                         │
+│  PostgreSQL  (pg connection pool)                               │
+└─────────────────────────────────────────────────────────────────┘
+
+Status change event flow:
+
+  PATCH /merchants/:id/status
+       │
+       ▼
+  status.service.js  ──► enqueueWebhookDeliveries()
+                               │
+                               ▼
+                        webhook_deliveries table  (status = PENDING)
+                               │
+                               ▼
+                        webhook.worker.js  (runs every 30 s)
+                               │
+                               ▼
+                        POST to each registered target URL
+                        (HMAC-SHA256 signed, with retry logic)
 ```
 
-## Setup Instructions
+---
+
+## Features
+
+- **KYB state machine**: merchants progress through a strict sequence of statuses; every transition is validated and logged in an append-only history table
+- **JWT authentication with refresh tokens**: 15-minute access tokens, 7-day refresh tokens with rotation and revocation; account lockout after 5 failed login attempts
+- **Webhook delivery worker**: status change events are enqueued in PostgreSQL and delivered asynchronously with configurable retries and HMAC-SHA256 payload signing
+- **Database migrations**: ordered SQL migration files; run with `npm run migrate`
+- **Docker Compose**: one command spins up PostgreSQL + the app with migrations auto-applied
+- **Swagger / OpenAPI docs**: full interactive documentation at `/api/docs`
+- **Rate limiting**: 5 req/15 min on auth, 100 req/15 min on merchant APIs, 20 req/min on webhooks
+- **Jest integration tests**: end-to-end tests against a real database covering auth, merchants, KYB flow, and webhooks
+
+---
+
+## KYB status transitions
+
+```
+  PENDING_KYB ──────────────────────────────► ACTIVE
+       │            (all 3 docs verified)       │
+       │                                        │
+       └──────────────────────────────────────► SUSPENDED ─────► ACTIVE
+              (any time)                                  (re-activation)
+```
+
+Valid transitions:
+
+| From | To | Condition |
+|---|---|---|
+| `PENDING_KYB` | `ACTIVE` | All 3 KYB documents verified |
+| `PENDING_KYB` | `SUSPENDED` | None |
+| `ACTIVE` | `SUSPENDED` | None |
+| `SUSPENDED` | `ACTIVE` | None |
+
+Every status change is recorded in `merchant_status_history` with the operator who made it, the reason, and a timestamp. This table is append-only.
+
+---
+
+## API endpoints
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Public | Create a new operator account |
+| `POST` | `/api/auth/login` | Public | Login; returns access + refresh tokens |
+| `POST` | `/api/auth/logout` | Public | Revoke a refresh token |
+| `POST` | `/api/auth/refresh` | Public | Exchange refresh token for new token pair |
+| `GET` | `/api/health` | Public | Health check |
+| `POST` | `/api/merchants` | Bearer | Create a merchant |
+| `GET` | `/api/merchants` | Bearer | List merchants (filterable by status, city, category, search) |
+| `GET` | `/api/merchants/:id` | Bearer | Get merchant by ID |
+| `PATCH` | `/api/merchants/:id` | Bearer | Update merchant fields |
+| `DELETE` | `/api/merchants/:id` | Bearer (ADMIN) | Delete a merchant |
+| `PATCH` | `/api/merchants/:id/status` | Bearer | Transition merchant status |
+| `POST` | `/api/merchants/:id/documents` | Bearer | Upload a KYB document |
+| `GET` | `/api/merchants/:id/documents` | Bearer | List KYB documents for a merchant |
+| `PATCH` | `/api/merchants/:id/documents/:docId/verify` | Bearer | Verify a KYB document |
+| `POST` | `/api/webhooks` | Bearer (ADMIN) | Register a webhook subscription |
+| `GET` | `/api/webhooks` | Bearer (ADMIN) | List webhook subscriptions |
+| `DELETE` | `/api/webhooks/:id` | Bearer (ADMIN) | Delete a webhook subscription |
+| `GET` | `/api/docs` | Public | Swagger UI |
+
+---
+
+## Getting started
 
 ### Prerequisites
 
-- Node.js v20 or higher
-- PostgreSQL 15+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker Compose)
+- Node.js 20+ and npm (only needed for local development without Docker)
 
-### 1. Clone the repository
-
-```bash
-git clone <repository-url>
-cd merchant-management-system
-```
-
-### 2. Install dependencies
+### Run with Docker Compose (recommended)
 
 ```bash
-npm install
-```
+# 1. Clone the repository
+git clone https://github.com/Bharat-Navratna/fintech-merchant-api.git
+cd fintech-merchant-api
 
-### 3. Configure environment variables
-
-```bash
+# 2. Create your environment file
 cp .env.example .env
+# Edit .env: set strong values for DB_PASSWORD, JWT_ACCESS_SECRET, JWT_REFRESH_SECRET
+
+# 3. Start the stack (Postgres + app; migrations and seed run automatically)
+docker compose up --build
+
+# API available at http://localhost:3000
+# Swagger docs  at http://localhost:3000/api/docs
 ```
 
-Edit `.env` with your PostgreSQL credentials and JWT secrets.
-
-### 4. Create the database
-
-```sql
-CREATE DATABASE merchant_management_system;
-```
-
-### 5. Run migrations
+### Run locally (without Docker)
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Create your environment file
+cp .env.example .env
+# Edit .env: DB_HOST should point to your local Postgres instance
+
+# 3. Run migrations
 npm run migrate
-```
 
-### 6. Seed the admin operator
-
-```bash
+# 4. Seed the default admin operator
 npm run seed
-```
 
-This creates an admin user with email `admin@yqnpay.com` and password `Admin123!`.
-
-## Environment Variables
-
-```
-NODE_ENV                        # development | test | production
-PORT                            # Server port (default: 5000)
-
-DB_HOST                         # PostgreSQL host
-DB_PORT                         # PostgreSQL port
-DB_NAME                         # Database name
-DB_USER                         # Database user
-DB_PASSWORD                     # Database password
-
-JWT_ACCESS_SECRET               # Secret for signing access tokens
-JWT_REFRESH_SECRET              # Secret for signing refresh tokens
-JWT_ACCESS_EXPIRES_IN           # Access token expiry (default: 15m)
-JWT_REFRESH_EXPIRES_IN          # Refresh token expiry (default: 7d)
-
-LOGIN_MAX_ATTEMPTS              # Max failed logins before lockout (default: 5)
-LOGIN_LOCK_MINUTES              # Lockout duration in minutes (default: 15)
-
-WEBHOOK_MAX_RETRIES             # Max delivery attempts (default: 3)
-WEBHOOK_RETRY_INTERVAL_SECONDS  # Delay between retries in seconds (default: 60)
-```
-
-## Running the Application
-
-### Start the API server
-
-```bash
-# Development (with hot reload)
+# 5. Start the development server
 npm run dev
-
-# Production
-npm start
 ```
 
-### Start the webhook worker
+---
+
+## Running tests
+
+Tests run against a **real PostgreSQL database** configured via `.env`. Each test file isolates its own data using `beforeAll` / `afterAll` setup and teardown.
 
 ```bash
-npm run worker:webhooks
-```
-
-The worker polls for pending webhook deliveries and processes them in the background.
-
-## Running Tests
-
-```bash
+# Run the full test suite
 npm test
+
+# Run with code coverage report
+npm run test:coverage
+
+# Watch mode (re-runs on file changes)
+npm run test:watch
 ```
 
-Tests use a real PostgreSQL database. Ensure your `.env` is configured before running.
+---
 
-## API Endpoints
+## Environment variables
+
 
 ### Health
 
@@ -261,3 +318,22 @@ Failed deliveries are retried up to 3 times with a configurable interval between
 - Webhook signature verification helper library for subscribers
 - Soft delete for merchants instead of hard delete
 - Request logging middleware for observability
+=======
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `NODE_ENV` | Yes | `development` | Runtime environment (`development`, `test`, `production`) |
+| `PORT` | Yes | — | Port the HTTP server listens on |
+| `API_URL` | No | `http://localhost:PORT/api` | Base URL shown in Swagger UI |
+| `DB_HOST` | Yes | — | PostgreSQL host |
+| `DB_PORT` | Yes | — | PostgreSQL port |
+| `DB_NAME` | Yes | — | Database name |
+| `DB_USER` | Yes | — | Database user |
+| `DB_PASSWORD` | Yes | — | Database password |
+| `JWT_ACCESS_SECRET` | Yes | — | Secret for signing access tokens |
+| `JWT_REFRESH_SECRET` | Yes | — | Secret for signing refresh tokens |
+| `JWT_ACCESS_EXPIRES_IN` | Yes | — | Access token lifetime (e.g. `15m`) |
+| `JWT_REFRESH_EXPIRES_IN` | Yes | — | Refresh token lifetime (e.g. `7d`) |
+| `LOGIN_MAX_ATTEMPTS` | No | `5` | Failed login attempts before account lockout |
+| `LOGIN_LOCK_MINUTES` | No | `15` | Lockout duration in minutes |
+| `WEBHOOK_MAX_RETRIES` | No | `3` | Maximum delivery attempts per webhook event |
+| `WEBHOOK_RETRY_INTERVAL_SECONDS` | No | `60` | Delay between delivery retries |

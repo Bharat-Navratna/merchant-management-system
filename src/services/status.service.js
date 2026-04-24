@@ -32,7 +32,7 @@ const updateMerchantStatus = async (id, data, currentUser) => {
     const { newStatus, reason } = data;
 
     if (oldStatus === newStatus) {
-      throw new AppError("Merchant is already in this status", 400);
+      throw new AppError("Merchant is already in this status", 409);
     }
 
     const allowedTransitions = ALLOWED_TRANSITIONS[oldStatus] || [];

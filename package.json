@@ -1,13 +1,14 @@
 {
-  "name": "merchant-management-system",
+  "name": "fintech-merchant-api",
   "version": "1.0.0",
-  "description": "Backend server for managing merchants, KYB verification, status transitions, and webhook notifications",
+  "description": "Production-grade REST API for merchant onboarding, KYB verification, and webhook event delivery",
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "cross-env NODE_ENV=test jest --runInBand",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
+    "test:coverage": "cross-env NODE_ENV=test jest --coverage --runInBand",
     "migrate": "node scripts/runMigrations.js",
     "seed": "node scripts/seedAdmin.js",
     "worker:webhooks": "node src/workers/webhook.worker.js"
@@ -21,8 +22,11 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.3.1",
     "express": "^4.22.1",
+    "express-rate-limit": "^8.4.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.20.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
