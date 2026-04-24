@@ -14,7 +14,7 @@ Production-grade REST API for merchant onboarding, KYB verification, and webhook
 - **Input Validation** : All incoming data validated with Zod schemas
 - **Secure Password Hashing** : Passwords hashed using bcrypt with salt rounds
 
-## Why this project
+## Product and Architectural Use Case
 
 Fintech platforms that accept payments from third-party merchants face a regulatory and operational challenge: they must verify the legitimacy of each merchant before allowing them to transact. This process is called **KYB (Know Your Business)**, the business-to-business equivalent of the consumer KYC process.
 
