@@ -318,7 +318,11 @@ Failed deliveries are retried up to 3 times with a configurable interval between
 - Webhook signature verification helper library for subscribers
 - Soft delete for merchants instead of hard delete
 - Request logging middleware for observability
-=======
+
+---
+
+## Environment variables
+
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `NODE_ENV` | Yes | `development` | Runtime environment (`development`, `test`, `production`) |
