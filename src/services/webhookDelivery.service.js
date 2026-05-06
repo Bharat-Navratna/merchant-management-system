@@ -42,7 +42,12 @@ const processPendingWebhookDeliveries = async () => {
 
   for (const delivery of deliveries) {
     try {
-      const signature = signWebhookPayload(delivery.payload, delivery.secret);
+      const signingSecret = delivery.secret || env.webhook.signingSecret;
+      if (!signingSecret) {
+        await handleFailure(delivery, "Webhook signing secret is missing");
+        continue;
+      }
+      const signature = signWebhookPayload(delivery.payload, signingSecret);
 
       const response = await fetch(delivery.target_url, {
         method: "POST",
@@ -78,6 +83,9 @@ const processPendingWebhookDeliveries = async () => {
 
 const handleFailure = async (delivery, errorMessage) => {
   const newAttemptCount = delivery.attempt_count + 1;
+  console.error(
+    `[WEBHOOK DELIVERY FAILED] delivery_id=${delivery.id} attempt=${newAttemptCount}/${MAX_RETRIES} error="${errorMessage}"`
+  );
 
   if (newAttemptCount >= MAX_RETRIES) {
     await query(

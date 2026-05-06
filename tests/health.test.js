@@ -12,3 +12,12 @@ describe("GET /api/health", () => {
     });
   });
 });
+
+describe("GET /api-docs", () => {
+  it("should serve Swagger UI", async () => {
+    const response = await request(app).get("/api-docs/");
+
+    expect(response.statusCode).toBe(200);
+    expect(response.text).toContain("Swagger UI");
+  });
+});

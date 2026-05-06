@@ -1,12 +1,28 @@
 const { Pool } = require("pg");
 const env = require("../config/env");
 
+const baseConfig = env.databaseUrl
+  ? { connectionString: env.databaseUrl }
+  : {
+      host: env.db.host,
+      port: env.db.port,
+      database: env.db.database,
+      user: env.db.user,
+      password: env.db.password
+    };
+
+const sslConfig =
+  env.nodeEnv === "production"
+    ? {
+        ssl: {
+          rejectUnauthorized: false
+        }
+      }
+    : {};
+
 const pool = new Pool({
-  host: env.db.host,
-  port: env.db.port,
-  database: env.db.database,
-  user: env.db.user,
-  password: env.db.password
+  ...baseConfig,
+  ...sslConfig
 });
 
 pool.on("error", (error) => {

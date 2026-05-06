@@ -20,7 +20,7 @@ Tokens expire in 15 minutes; use \`POST /auth/refresh\` to obtain a new pair.`
     },
     servers: [
       {
-        url: process.env.API_URL || `http://localhost:${process.env.PORT || 3000}/api`,
+        url: process.env.API_URL || `http://localhost:${process.env.PORT || 3001}/api`,
         description: "API server"
       }
     ],

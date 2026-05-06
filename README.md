@@ -111,7 +111,7 @@ Status change event flow:
 - **Webhook delivery worker**: status change events are enqueued in PostgreSQL and delivered asynchronously with configurable retries and HMAC-SHA256 payload signing
 - **Database migrations**: ordered SQL migration files; run with `npm run migrate`
 - **Docker Compose**: one command spins up PostgreSQL + the app with migrations auto-applied
-- **Swagger / OpenAPI docs**: full interactive documentation at `/api/docs`
+- **Swagger / OpenAPI docs**: full interactive documentation at `/api/docs` and `/api-docs`
 - **Rate limiting**: 5 req/15 min on auth, 100 req/15 min on merchant APIs, 20 req/min on webhooks
 - **Jest integration tests**: end-to-end tests against a real database covering auth, merchants, KYB flow, and webhooks
 
@@ -162,6 +162,7 @@ Every status change is recorded in `merchant_status_history` with the operator w
 | `GET` | `/api/webhooks` | Bearer (ADMIN) | List webhook subscriptions |
 | `DELETE` | `/api/webhooks/:id` | Bearer (ADMIN) | Delete a webhook subscription |
 | `GET` | `/api/docs` | Public | Swagger UI |
+| `GET` | `/api-docs` | Public | Swagger UI alias |
 
 ---
 
@@ -186,8 +187,9 @@ cp .env.example .env
 # 3. Start the stack (Postgres + app; migrations and seed run automatically)
 docker compose up --build
 
-# API available at http://localhost:3000
-# Swagger docs  at http://localhost:3000/api/docs
+# API available at http://localhost:3001
+# Swagger docs  at http://localhost:3001/api/docs
+# Swagger alias at http://localhost:3001/api-docs
 ```
 
 ### Run locally (without Docker)
@@ -326,7 +328,9 @@ Failed deliveries are retried up to 3 times with a configurable interval between
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `NODE_ENV` | Yes | `development` | Runtime environment (`development`, `test`, `production`) |
-| `PORT` | Yes | — | Port the HTTP server listens on |
+| `PORT` | Yes | `3001` | Port the HTTP server listens on |
+| `CORS_ORIGIN` | Yes | — | Comma-separated frontend origins allowed to call the API |
+| `DATABASE_URL` | No* | — | Full PostgreSQL connection string (recommended for AWS). *Required if DB_* values are not provided |
 | `API_URL` | No | `http://localhost:PORT/api` | Base URL shown in Swagger UI |
 | `DB_HOST` | Yes | — | PostgreSQL host |
 | `DB_PORT` | Yes | — | PostgreSQL port |
@@ -341,3 +345,68 @@ Failed deliveries are retried up to 3 times with a configurable interval between
 | `LOGIN_LOCK_MINUTES` | No | `15` | Lockout duration in minutes |
 | `WEBHOOK_MAX_RETRIES` | No | `3` | Maximum delivery attempts per webhook event |
 | `WEBHOOK_RETRY_INTERVAL_SECONDS` | No | `60` | Delay between delivery retries |
+| `WEBHOOK_WORKER_INTERVAL_MS` | No | `30000` | Webhook worker polling interval |
+| `WEBHOOK_SECRET` | No | — | Optional fallback webhook signing secret when subscription secret is unavailable |
+
+---
+
+## Deployment (AWS Elastic Beanstalk or App Runner + RDS)
+
+### AWS Elastic Beanstalk (Backend)
+
+1. Use the repository root as the application source.
+2. Elastic Beanstalk can use `npm start`; a `Procfile` is not required for this project.
+3. Run migrations against RDS before the first deployment:
+
+```bash
+npm ci
+NODE_ENV=production npm run migrate
+```
+
+4. Configure environment variables in Elastic Beanstalk:
+   - `NODE_ENV=production`
+   - `PORT` (Elastic Beanstalk usually provides this; set only if your platform requires it)
+   - `CORS_ORIGIN=https://your-frontend-domain.com`
+   - `DATABASE_URL=postgresql://...` (RDS connection string)
+   - `API_URL=https://your-api-domain.com/api`
+   - `JWT_ACCESS_SECRET`
+   - `JWT_REFRESH_SECRET`
+   - `JWT_ACCESS_EXPIRES_IN`
+   - `JWT_REFRESH_EXPIRES_IN`
+
+### AWS App Runner (Backend)
+
+1. Set App Runner source to this repository root.
+2. Use build command:
+
+```bash
+npm ci && npm run migrate
+```
+
+3. Use start command:
+
+```bash
+npm start
+```
+
+4. Set port environment variable:
+
+```bash
+PORT=3001
+```
+
+5. Configure environment variables in App Runner:
+   - `NODE_ENV=production`
+   - `PORT=3001`
+   - `CORS_ORIGIN=https://your-frontend-domain.com`
+   - `DATABASE_URL=postgresql://...` (RDS connection string)
+   - `JWT_ACCESS_SECRET`
+   - `JWT_REFRESH_SECRET`
+   - `JWT_ACCESS_EXPIRES_IN`
+   - `JWT_REFRESH_EXPIRES_IN`
+   - `LOGIN_MAX_ATTEMPTS` (optional)
+   - `LOGIN_LOCK_MINUTES` (optional)
+   - `WEBHOOK_MAX_RETRIES` (optional)
+   - `WEBHOOK_RETRY_INTERVAL_SECONDS` (optional)
+   - `WEBHOOK_WORKER_INTERVAL_MS` (optional)
+   - `WEBHOOK_SECRET` (optional fallback)

@@ -1,4 +1,5 @@
 const { processPendingWebhookDeliveries } = require("../services/webhookDelivery.service");
+const env = require("../config/env");
 
 const run = async () => {
   try {
@@ -8,10 +9,9 @@ const run = async () => {
   }
 };
 
-console.log("Webhook worker started");
+console.log(`Webhook worker started. Polling every ${env.webhook.workerIntervalMs}ms`);
 
 // run immediately
 run();
 
-// run every 30 seconds
-setInterval(run, 30000);
+setInterval(run, env.webhook.workerIntervalMs);

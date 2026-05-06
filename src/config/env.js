@@ -3,17 +3,26 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const requiredEnvVars = [
-  "PORT",
-  "DB_HOST",
-  "DB_PORT",
-  "DB_NAME",
-  "DB_USER",
-  "DB_PASSWORD",
   "JWT_ACCESS_SECRET",
   "JWT_REFRESH_SECRET",
   "JWT_ACCESS_EXPIRES_IN",
   "JWT_REFRESH_EXPIRES_IN"
 ];
+
+const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
+const hasDiscreteDbConfig = Boolean(
+  process.env.DB_HOST &&
+    process.env.DB_PORT &&
+    process.env.DB_NAME &&
+    process.env.DB_USER &&
+    process.env.DB_PASSWORD
+);
+
+if (!hasDatabaseUrl && !hasDiscreteDbConfig) {
+  throw new Error(
+    "Missing database configuration. Provide DATABASE_URL or DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD."
+  );
+}
 
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
@@ -23,7 +32,9 @@ for (const envVar of requiredEnvVars) {
 
 module.exports = {
   nodeEnv: process.env.NODE_ENV || "development",
-  port: Number(process.env.PORT) || 5000,
+  port: Number(process.env.PORT) || 3001,
+  corsOrigin: process.env.CORS_ORIGIN || "",
+  databaseUrl: process.env.DATABASE_URL || "",
   db: {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
@@ -43,6 +54,8 @@ module.exports = {
   },
   webhook: {
     maxRetries: Number(process.env.WEBHOOK_MAX_RETRIES || 3),
-    retryIntervalSeconds: Number(process.env.WEBHOOK_RETRY_INTERVAL_SECONDS || 60)
+    retryIntervalSeconds: Number(process.env.WEBHOOK_RETRY_INTERVAL_SECONDS || 60),
+    workerIntervalMs: Number(process.env.WEBHOOK_WORKER_INTERVAL_MS || 30000),
+    signingSecret: process.env.WEBHOOK_SECRET || ""
   }
 };
