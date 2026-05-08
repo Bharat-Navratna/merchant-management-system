@@ -410,3 +410,32 @@ PORT=3001
    - `WEBHOOK_RETRY_INTERVAL_SECONDS` (optional)
    - `WEBHOOK_WORKER_INTERVAL_MS` (optional)
    - `WEBHOOK_SECRET` (optional fallback)
+
+### AWS Amplify (Frontend)
+
+The frontend is a Next.js app in the `frontend/` directory.
+
+Local setup:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Required frontend environment variable:
+
+```bash
+NEXT_PUBLIC_API_URL=http://merchant-management-system-env.eba-dj8ssx6e.eu-west-2.elasticbeanstalk.com/api
+```
+
+Amplify settings:
+
+- App root: `frontend`
+- Build command: `npm run build`
+- Output directory: `.next`
+- Environment variable: `NEXT_PUBLIC_API_URL`
+
+For local browser testing, include `http://localhost:3001` in the backend `CORS_ORIGIN`. After the Amplify URL is created, set `CORS_ORIGIN` to the deployed frontend origin. This backend expects explicit origins, so `*` is not treated as a browser wildcard by the current CORS middleware.
+
+The webhook worker is separate from the initial API/frontend deployment and can be deployed later if background webhook retries are required.
