@@ -24,3 +24,4 @@ export function KpiCards({ stats }: { stats: DashboardStats }) {
     </div>
   );
 }
+

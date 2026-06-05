@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const protectedRoutes = ["/dashboard", "/merchants", "/kyb", "/webhooks", "/security"];
+const protectedRoutes = [
+  "/dashboard",
+  "/merchants",
+  "/kyb",
+  "/webhooks",
+  "/risk",
+  "/audit",
+  "/observability",
+  "/security",
+  "/settings",
+];
 
 export function proxy(request: NextRequest) {
   const token = request.cookies.get("accessToken")?.value;
@@ -22,5 +32,16 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/merchants/:path*", "/kyb/:path*", "/webhooks/:path*", "/security/:path*", "/login"],
+  matcher: [
+    "/dashboard/:path*",
+    "/merchants/:path*",
+    "/kyb/:path*",
+    "/webhooks/:path*",
+    "/risk/:path*",
+    "/audit/:path*",
+    "/observability/:path*",
+    "/security/:path*",
+    "/settings/:path*",
+    "/login",
+  ],
 };

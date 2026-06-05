@@ -30,3 +30,4 @@ export function StatusPill({ status }: { status: Status | string }) {
   const variant = statusVariantMap[normalized] ?? "info";
   return <Badge variant={variant}>{status}</Badge>;
 }
+

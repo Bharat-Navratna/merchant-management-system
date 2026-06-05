@@ -1,6 +1,8 @@
 import axios from "axios";
 import { clearAuth, getAccessToken, getRefreshToken, persistAuth } from "@/lib/auth";
 
+const useMockApi = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
+
 export const apiClient = axios.create({
   baseURL:
     process.env.NEXT_PUBLIC_API_URL ??
@@ -10,6 +12,11 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
+  // Local UI preview mode should never reach a backend or trigger CORS requests.
+  if (useMockApi) {
+    return Promise.reject(new Error("API client is disabled while NEXT_PUBLIC_USE_MOCKS=true"));
+  }
+
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
