@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MerchantOps - API Keys</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #10131a;
+            color: #e1e2ec;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-panel-elevated {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pulse-emerald {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .recessed-input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .recessed-input:focus {
+            border-color: #adc6ff;
+            box-shadow: 0 0 12px rgba(173, 198, 255, 0.2);
+            outline: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#adc6ff",
+                        "on-surface": "#e1e2ec",
+                        "tertiary-container": "#009eb9",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#191b23",
+                        "surface-container-lowest": "#0b0e15",
+                        "secondary-container": "#571bc1",
+                        "on-primary-fixed-variant": "#004395",
+                        "outline": "#8c909f",
+                        "on-tertiary-container": "#002f38",
+                        "surface-tint": "#adc6ff",
+                        "on-secondary": "#3c0091",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed": "#001f26",
+                        "surface-container-highest": "#32353c",
+                        "on-secondary-fixed": "#23005c",
+                        "on-tertiary-fixed-variant": "#004e5c",
+                        "tertiary-fixed-dim": "#4cd7f6",
+                        "outline-variant": "#424754",
+                        "on-error": "#690005",
+                        "background": "#10131a",
+                        "error-container": "#93000a",
+                        "on-surface-variant": "#c2c6d6",
+                        "surface-container": "#1d2027",
+                        "on-primary-container": "#00285d",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-background": "#e1e2ec",
+                        "on-primary-fixed": "#001a42",
+                        "tertiary": "#4cd7f6",
+                        "on-tertiary": "#003640",
+                        "on-secondary-container": "#c4abff",
+                        "on-primary": "#002e6a",
+                        "on-secondary-fixed-variant": "#5516be",
+                        "inverse-surface": "#e1e2ec",
+                        "secondary-fixed-dim": "#d0bcff",
+                        "surface-container-high": "#272a31",
+                        "surface": "#10131a",
+                        "secondary": "#d0bcff",
+                        "primary-fixed": "#d8e2ff",
+                        "primary-container": "#4d8eff",
+                        "inverse-on-surface": "#2e3038",
+                        "surface-variant": "#32353c",
+                        "surface-bright": "#363941",
+                        "surface-dim": "#10131a",
+                        "secondary-fixed": "#e9ddff",
+                        "tertiary-fixed": "#acedff",
+                        "inverse-primary": "#005ac2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "2rem",
+                        "stack-md": "1rem",
+                        "inset-card": "1.5rem",
+                        "stack-sm": "0.5rem",
+                        "gutter-grid": "1.5rem",
+                        "stack-lg": "2rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Geist"],
+                        "label-sm": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background">
+<!-- Sidebar (Shared Component JSON: SideNavBar) -->
+<aside class="fixed left-0 top-0 h-full w-64 border-r border-white/10 backdrop-blur-xl bg-background/80 flex flex-col py-stack-lg px-4 z-50">
+<div class="mb-stack-lg px-2">
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">MerchantOps</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Fintech Control Plane</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-white/10 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-white/10 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="font-body-md">Merchants</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-white/10 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="font-body-md">KYB Review</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-white/10 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">security_update_good</span>
+<span class="font-body-md">Risk Intelligence</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-white/10 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">webhook</span>
+<span class="font-body-md">Webhook Ops</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-white/10 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-body-md">Audit Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-white/10 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="font-body-md">Observability</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant font-medium hover:bg-white/10 hover:text-on-surface transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-body-md">Security</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-primary font-bold bg-white/5 border-r-2 border-primary transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-stack-lg border-t border-white/5 space-y-1">
+<button class="w-full text-left flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface font-body-md">
+<span class="material-symbols-outlined">help</span>
+                Support
+            </button>
+<button class="w-full text-left flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface font-body-md">
+<span class="material-symbols-outlined">account_circle</span>
+                Account
+            </button>
+</div>
+</aside>
+<!-- Top Bar (Shared Component JSON: TopNavBar) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 border-b border-white/10 backdrop-blur-md bg-background/60 flex items-center justify-between px-margin-page z-40">
+<div class="flex items-center gap-stack-md flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-black/20 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="Search keys, merchants, or logs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="bg-primary text-on-primary-container font-label-md px-4 py-2 rounded-lg hover:brightness-110 active:scale-95 transition-all">
+                New Merchant
+            </button>
+<div class="flex items-center gap-2 px-2 border-l border-white/10 ml-2">
+<button class="p-2 text-on-surface-variant hover:bg-white/5 rounded-lg transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-white/5 rounded-lg transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-white/20 overflow-hidden ml-2">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCs1W4l2HTEKHwUtD5lUkO8uMY0IC96PUL_F8dVEqBsKgYOqZyeID5jGW84zdLADhomFF9PxLlvE6jhxaIO0PqE9Zv4J82HcsMz5aS4L5IM9xHc_v7wIOF_-pvIw_HOqSYMi72SetV-etvUCGPgNj2FK5qBckNXvucTHKLbKRjUPVnsX2a9Us37X1TB50g1tQPgKk8vrBKDVeBME9HPvwfMtJSiPQniMz_G7s1pR1D3njJ2EL59D97qrJnIuLz-XYKdtCOvOnm37Sk"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="p-margin-page">
+<!-- Page Header -->
+<div class="mb-stack-lg flex items-end justify-between">
+<div>
+<nav class="flex items-center gap-2 text-label-md text-on-surface-variant mb-2">
+<span>Settings</span>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span class="text-primary">Developer Settings</span>
+</nav>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Settings &amp; Config</h2>
+<p class="text-on-surface-variant font-body-md opacity-70">Manage organization-wide infrastructure and developer authentication.</p>
+</div>
+<div class="flex gap-stack-sm">
+<button class="flex items-center gap-2 bg-error-container/20 text-error border border-error/20 font-label-md px-4 py-2 rounded-lg hover:bg-error-container/30 transition-all">
+<span class="material-symbols-outlined text-sm">dangerous</span>
+                        Revoke All
+                    </button>
+<button class="flex items-center gap-2 bg-primary text-on-primary-container font-label-md px-4 py-2 rounded-lg hover:brightness-110 transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+                        Generate New Key
+                    </button>
+</div>
+</div>
+<!-- Bento Layout Wrapper -->
+<div class="flex gap-gutter-grid">
+<!-- Internal Sidebar Navigation -->
+<aside class="w-64 shrink-0">
+<div class="glass-panel rounded-xl overflow-hidden">
+<div class="p-4 border-b border-white/10">
+<h3 class="font-label-md text-on-surface-variant uppercase tracking-widest text-[10px]">Categories</h3>
+</div>
+<nav class="p-2 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant font-medium hover:bg-white/5 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">corporate_fare</span>
+<span class="font-body-sm">Org Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant font-medium hover:bg-white/5 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">cloud</span>
+<span class="font-body-sm">Environment</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant font-medium hover:bg-white/5 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">vpn_key</span>
+<span class="font-body-sm">Webhook Secrets</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-primary bg-primary/10 font-bold border-l-2 border-primary rounded-r-lg transition-all" href="#">
+<span class="material-symbols-outlined">api</span>
+<span class="font-body-sm">API Keys</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-on-surface-variant font-medium hover:bg-white/5 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-body-sm">Team Roles</span>
+</a>
+<div class="pt-4 mt-4 border-t border-white/5">
+<a class="flex items-center gap-3 px-3 py-2.5 text-error font-medium hover:bg-error/10 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined text-error">report</span>
+<span class="font-body-sm">Danger Zone</span>
+</a>
+</div>
+</nav>
+</div>
+<!-- Decorative Card -->
+<div class="mt-gutter-grid glass-panel rounded-xl p-inset-card relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors"></div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-primary mb-2">auto_awesome</span>
+<h4 class="font-label-md text-on-surface mb-1">API Consumption</h4>
+<p class="text-[11px] text-on-surface-variant leading-relaxed">Your current key usage is at 42% of monthly quota.</p>
+<div class="mt-3 w-full bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/10">
+<div class="bg-primary h-full rounded-full" style="width: 42%;"></div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Content Area: API Keys -->
+<div class="flex-1 space-y-gutter-grid">
+<!-- Alert/Notice -->
+<div class="glass-panel border-tertiary/20 bg-tertiary-container/5 rounded-xl p-4 flex items-start gap-4">
+<div class="bg-tertiary/20 p-2 rounded-lg text-tertiary">
+<span class="material-symbols-outlined">info</span>
+</div>
+<div>
+<h4 class="font-label-md text-tertiary mb-1">Key Security Policy</h4>
+<p class="text-body-sm text-on-surface-variant">API keys provide full access to your production merchant environment. Always store secrets in an encrypted vault. Revoke keys immediately if they are compromised.</p>
+</div>
+</div>
+<!-- API Keys Table Container -->
+<div class="glass-panel rounded-xl overflow-hidden">
+<div class="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+<h3 class="font-headline-md text-on-surface">Active API Credentials</h3>
+<div class="flex items-center gap-2">
+<span class="flex items-center gap-1.5 text-[10px] uppercase font-bold text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-emerald-500 pulse-emerald"></span>
+                                    Live Environment
+                                </span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-white/5 border-b border-white/5">
+<th class="px-6 py-3 font-label-md text-on-surface-variant uppercase tracking-wider text-[10px]">Key Name</th>
+<th class="px-6 py-3 font-label-md text-on-surface-variant uppercase tracking-wider text-[10px]">Scopes</th>
+<th class="px-6 py-3 font-label-md text-on-surface-variant uppercase tracking-wider text-[10px]">Created</th>
+<th class="px-6 py-3 font-label-md text-on-surface-variant uppercase tracking-wider text-[10px]">Secret (Masked)</th>
+<th class="px-6 py-3 font-label-md text-on-surface-variant uppercase tracking-wider text-[10px] text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<!-- Key 1 -->
+<tr class="hover:bg-white/2 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm">terminal</span>
+</div>
+<span class="font-body-md text-on-surface group-hover:text-primary transition-colors">Production_Master_01</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-on-surface-variant">Full Access</span>
+<span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-on-surface-variant">Write</span>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">Oct 12, 2023</td>
+<td class="px-6 py-4">
+<code class="font-mono text-xs text-on-surface-variant bg-black/40 px-2 py-1 rounded select-all">pk_live_••••••••••••••••3xY9</code>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded transition-all">
+<span class="material-symbols-outlined text-lg">content_copy</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-error hover:bg-error/10 rounded transition-all">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Key 2 -->
+<tr class="hover:bg-white/2 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">analytics</span>
+</div>
+<span class="font-body-md text-on-surface group-hover:text-primary transition-colors">Analytics_ReadOnly</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-on-surface-variant">Read Only</span>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">Nov 04, 2023</td>
+<td class="px-6 py-4">
+<code class="font-mono text-xs text-on-surface-variant bg-black/40 px-2 py-1 rounded select-all">pk_live_••••••••••••••••7vR2</code>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded transition-all">
+<span class="material-symbols-outlined text-lg">content_copy</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-error hover:bg-error/10 rounded transition-all">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Key 3 -->
+<tr class="hover:bg-white/2 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">developer_mode_tv</span>
+</div>
+<span class="font-body-md text-on-surface group-hover:text-primary transition-colors">Staging_Test_Key</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-on-surface-variant">Sandboxed</span>
+<span class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-on-surface-variant">Write</span>
+</div>
+</td>
+<td class="px-6 py-4 text-body-sm text-on-surface-variant">Jan 12, 2024</td>
+<td class="px-6 py-4">
+<code class="font-mono text-xs text-on-surface-variant bg-black/40 px-2 py-1 rounded select-all">sk_test_••••••••••••••••1kP9</code>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded transition-all">
+<span class="material-symbols-outlined text-lg">content_copy</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-error hover:bg-error/10 rounded transition-all">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-white/5 bg-white/2 flex items-center justify-between">
+<span class="text-label-sm text-on-surface-variant">Showing 3 of 3 Active Keys</span>
+<div class="flex items-center gap-4">
+<button class="text-label-sm text-on-surface-variant hover:text-on-surface disabled:opacity-30" disabled="">Previous</button>
+<button class="text-label-sm text-on-surface-variant hover:text-on-surface disabled:opacity-30" disabled="">Next</button>
+</div>
+</div>
+</div>
+<!-- Usage Details Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-grid">
+<div class="glass-panel rounded-xl p-inset-card flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<h4 class="font-label-md text-on-surface">Last Revocation</h4>
+</div>
+<span class="text-label-sm text-on-surface-variant">Dec 22, 2023</span>
+</div>
+<div class="mt-2 p-3 bg-black/20 rounded-lg border border-white/5">
+<p class="text-body-sm text-on-surface-variant mb-1">Key: <span class="font-mono text-primary">Legacy_v1_Integration</span></p>
+<p class="text-body-sm text-on-surface-variant">Reason: <span class="text-error">Suspicious login activity from unknown IP (45.12.92.1)</span></p>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-inset-card flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">api</span>
+</div>
+<h4 class="font-label-md text-on-surface">API Rate Limiting</h4>
+</div>
+<span class="px-2 py-0.5 rounded bg-secondary/10 border border-secondary/20 text-[10px] text-secondary font-bold">OPTIMIZED</span>
+</div>
+<div class="space-y-3 mt-1">
+<div class="flex justify-between text-body-sm text-on-surface-variant">
+<span>Requests/sec</span>
+<span class="font-mono text-on-surface">428 / 1,000</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 42.8%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Subtle hover effects for cards
+        document.querySelectorAll('.glass-panel').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // Simulating "Copy to clipboard"
+        document.querySelectorAll('button .material-symbols-outlined').forEach(icon => {
+            if (icon.textContent === 'content_copy') {
+                icon.parentElement.addEventListener('click', () => {
+                    const originalText = icon.textContent;
+                    icon.textContent = 'check';
+                    icon.classList.add('text-emerald-400');
+                    setTimeout(() => {
+                        icon.textContent = originalText;
+                        icon.classList.remove('text-emerald-400');
+                    }, 2000);
+                });
+            }
+        });
+    </script>
+</body></html>

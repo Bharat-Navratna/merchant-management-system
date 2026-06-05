@@ -1,13 +1,21 @@
 import { cn } from "@/lib/utils";
 
+type CardProps = React.HTMLAttributes<HTMLDivElement> & {
+  density?: "compact" | "default" | "spacious";
+};
+
 export function Card({
   className,
+  density = "default",
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
+        "glass-panel rounded-lg text-card-foreground shadow-[0_18px_60px_rgba(0,0,0,0.18)]",
+        density === "compact" && "[--card-pad:1rem]",
+        density === "default" && "[--card-pad:1.5rem]",
+        density === "spacious" && "[--card-pad:1.5rem]",
         className,
       )}
       {...props}
@@ -19,7 +27,7 @@ export function CardHeader({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("space-y-1.5 p-6", className)} {...props} />;
+  return <div className={cn("space-y-1.5 p-[var(--card-pad,1.5rem)]", className)} {...props} />;
 }
 
 export function CardTitle({
@@ -33,5 +41,6 @@ export function CardContent({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-6 pt-0", className)} {...props} />;
+  return <div className={cn("p-[var(--card-pad,1.5rem)] pt-0", className)} {...props} />;
 }
+

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MerchantOps Command Center - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @font-face {
+            font-family: 'Geist';
+            src: url('https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&display=swap');
+        }
+        
+        body {
+            background-color: #0c1324;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glow-button {
+            box-shadow: 0 0 15px -3px rgba(173, 198, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .glow-button:hover {
+            box-shadow: 0 0 20px -2px rgba(173, 198, 255, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        .orb-glow {
+            animation: pulse-ring 4s ease-in-out infinite;
+        }
+
+        .floating-point {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #4cd7f6;
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-container": "#00285d",
+                      "on-tertiary": "#003640",
+                      "surface-variant": "#2e3447",
+                      "error-container": "#93000a",
+                      "on-tertiary-container": "#002f38",
+                      "on-surface-variant": "#c2c6d6",
+                      "secondary": "#d0bcff",
+                      "surface": "#0c1324",
+                      "on-primary": "#002e6a",
+                      "primary": "#adc6ff",
+                      "on-background": "#dce1fb",
+                      "tertiary": "#4cd7f6",
+                      "primary-container": "#4d8eff",
+                      "tertiary-container": "#009eb9",
+                      "background": "#0c1324"
+              },
+              "fontFamily": {
+                      "label-md": ["Geist", "sans-serif"],
+                      "display-lg": ["Geist", "sans-serif"],
+                      "title-md": ["Geist", "sans-serif"],
+                      "headline-lg": ["Geist", "sans-serif"],
+                      "body-lg": ["Inter", "sans-serif"],
+                      "mono-sm": ["JetBrains Mono", "monospace"]
+              },
+              "fontSize": {
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-lg">
+<main class="flex min-h-screen">
+<!-- Left Side: Visual Area -->
+<section class="hidden lg:flex flex-1 relative bg-surface-container-lowest overflow-hidden items-center justify-center border-r border-white/5">
+<div class="absolute inset-0 grid-bg opacity-30"></div>
+<!-- Animated Fintech Orb Container -->
+<div class="relative z-10 w-[500px] h-[500px] flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/20 rounded-full blur-[100px] orb-glow"></div>
+<div class="relative w-80 h-80 rounded-full border border-tertiary/30 backdrop-blur-sm flex items-center justify-center">
+<img alt="Digital Globe" class="w-full h-full object-cover rounded-full opacity-80 mix-blend-screen" data-alt="A highly detailed 3D digital globe or network orb composed of glowing cyan and deep blue lines of code and data paths. The sphere is suspended in a dark navy void with a subtle architectural grid background. Floating holographic data points and micro-chips orbit the sphere, illuminated by high-tech lens flares and soft volumetric light. The overall mood is futuristic, representing global financial connectivity and sophisticated merchant operations." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALVmSw01u8QwKC8lhBT68DW94ai2z6fPI4x1YVHpYDNJ1QKJ2e_sFeqNQ9UTfBD_K_vhZIDSPixu8itXJhfUHQf6TUt1XVECr_h3L5jEqyIp_LjHNbbAhs4yEAda5xchjGv7KMXvtDZhddzGhPfGXVaT2W1Aha8yHAu7UHBQoBlBH-w9yjWBa5aFf97Y4x9WsI-i2_Jj8-QdYQC1DzaELJ2qNSOkDbRy3U9YhWuTaWNwJAAXULTNwDwqAarGxQQvBlBPw8SYgngTs"/>
+<!-- Floating UI elements around the globe -->
+<div class="absolute -top-10 -right-10 glass-card p-3 rounded-lg border border-primary/20 animate-bounce" style="animation-duration: 4s;">
+<span class="material-symbols-outlined text-primary text-xl">verified_user</span>
+</div>
+<div class="absolute bottom-10 -left-12 glass-card p-3 rounded-lg border border-tertiary/20 animate-bounce" style="animation-duration: 5s; animation-delay: 1s;">
+<span class="material-symbols-outlined text-tertiary text-xl">monitoring</span>
+</div>
+</div>
+<!-- Random floating particles via JS or Absolute divs -->
+<div class="floating-point top-1/4 left-1/4 animate-pulse"></div>
+<div class="floating-point top-3/4 right-1/3 animate-pulse" style="animation-delay: 1.5s;"></div>
+<div class="floating-point bottom-1/4 left-1/2 animate-pulse" style="animation-delay: 0.5s;"></div>
+</div>
+<!-- Branding Bottom Left -->
+<div class="absolute bottom-12 left-12 z-20">
+<h2 class="font-display-lg text-display-lg text-primary">MerchantOps</h2>
+<p class="font-title-md text-title-md text-on-surface-variant max-w-sm mt-2">
+                    Command center for fintech precision.
+                </p>
+</div>
+</section>
+<!-- Right Side: Login Form -->
+<section class="flex-1 flex items-center justify-center p-8 bg-surface">
+<div class="w-full max-w-md">
+<!-- Mobile Logo (Shown only on small screens) -->
+<div class="lg:hidden mb-12 text-center">
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight">MerchantOps</h1>
+<p class="text-on-surface-variant mt-2">Fintech Command Center</p>
+</div>
+<!-- Glassmorphism Card -->
+<div class="glass-card p-10 rounded-2xl shadow-2xl relative">
+<header class="mb-8">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Operator Login</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                            Merchant onboarding, KYB, risk, and webhook reliability in one command center.
+                        </p>
+</header>
+<form class="space-y-6" id="loginForm">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block uppercase tracking-wider" for="email">Operational Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">alternate_email</span>
+<input class="w-full bg-surface-variant/50 border border-outline-variant text-on-surface rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all outline-none" id="email" placeholder="operator@merchantops.com" required="" type="email"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block uppercase tracking-wider" for="password">Access Key</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">lock</span>
+<input class="w-full bg-surface-variant/50 border border-outline-variant text-on-surface rounded-xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all outline-none" id="password" placeholder="••••••••••••" required="" type="password"/>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<label class="flex items-center cursor-pointer group">
+<div class="relative">
+<input class="sr-only" type="checkbox"/>
+<div class="w-5 h-5 border-2 border-outline-variant rounded bg-surface-variant group-hover:border-primary transition-colors"></div>
+<span class="material-symbols-outlined absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary opacity-0 text-[16px] font-bold">check</span>
+</div>
+<span class="ml-3 font-body-md text-body-md text-on-surface-variant">Remember device</span>
+</label>
+<a class="font-body-md text-body-md text-primary hover:text-primary-container transition-colors" href="#">Forgot key?</a>
+</div>
+<button class="w-full bg-primary text-on-primary font-title-md text-title-md py-4 rounded-xl font-bold glow-button flex items-center justify-center space-x-2" type="submit">
+<span>Sign In to Terminal</span>
+<span class="material-symbols-outlined">login</span>
+</button>
+</form>
+<footer class="mt-8 pt-6 border-t border-white/5 flex items-center justify-center space-x-2 opacity-60">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<p class="font-label-md text-label-md uppercase tracking-widest">Protected with secure operator authentication</p>
+</footer>
+</div>
+<!-- Footer Links -->
+<div class="mt-10 flex justify-center space-x-6">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary uppercase tracking-tighter" href="#">System Status</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary uppercase tracking-tighter" href="#">API Documentation</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary uppercase tracking-tighter" href="#">Privacy Protocol</a>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Micro-interaction for the custom checkbox
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const icon = this.parentElement.querySelector('.material-symbols-outlined');
+                if (this.checked) {
+                    icon.style.opacity = '1';
+                    this.nextElementSibling.classList.add('border-primary');
+                    this.nextElementSibling.classList.add('bg-primary/20');
+                } else {
+                    icon.style.opacity = '0';
+                    this.nextElementSibling.classList.remove('border-primary');
+                    this.nextElementSibling.classList.remove('bg-primary/20');
+                }
+            });
+        });
+
+        // Form Submission visual feedback
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalHtml = btn.innerHTML;
+            
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">refresh</span><span>Authenticating...</span>';
+            btn.classList.add('opacity-80');
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span><span>Access Granted</span>';
+                btn.classList.remove('bg-primary');
+                btn.classList.add('bg-tertiary', 'text-on-tertiary');
+                
+                // Potential redirect
+                // window.location.href = '/dashboard';
+            }, 1500);
+        });
+
+        // Background point generation for atmospheric effect
+        const visualArea = document.querySelector('section:first-child');
+        for (let i = 0; i < 20; i++) {
+            const point = document.createElement('div');
+            point.className = 'floating-point animate-pulse';
+            point.style.left = Math.random() * 100 + '%';
+            point.style.top = Math.random() * 100 + '%';
+            point.style.animationDelay = Math.random() * 5 + 's';
+            point.style.opacity = Math.random() * 0.5 + 0.1;
+            visualArea.appendChild(point);
+        }
+    </script>
+</body></html>
